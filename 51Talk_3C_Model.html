@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>51Talk 3C 课程理念模型</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+
+:root {
+  --comp: #7F77DD; --comp-light: #EEEDFE; --comp-glow: rgba(127,119,221,0.35);
+  --cogn: #1D9E75; --cogn-light: #E1F5EE; --cogn-glow: rgba(29,158,117,0.35);
+  --cult: #D85A30; --cult-light: #FAECE7; --cult-glow: rgba(216,90,48,0.35);
+  --apex: #378ADD; --apex-light: #E6F1FB; --apex-glow: rgba(55,138,221,0.4);
+  --bg: #0C0B14; --bg2: #14131F; --text: #E8E6F0; --text2: #9896A8; --text3: #5C5A6E;
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.grain {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 999;
+}
+
+.app {
+  max-width: 1200px; margin: 0 auto; padding: 24px;
+  display: grid; grid-template-columns: 1fr 340px; gap: 24px;
+  min-height: 100vh; align-content: start;
+}
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+}
+
+header {
+  grid-column: 1 / -1;
+  padding: 20px 0 12px;
+  display: flex; align-items: center; gap: 16px;
+}
+
+header .logo {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--apex), var(--comp));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; color: #fff; letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 20px; font-weight: 500; letter-spacing: -0.3px;
+  background: linear-gradient(90deg, var(--text), var(--text2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+header .badge {
+  font-size: 11px; padding: 4px 10px; border-radius: 20px;
+  background: rgba(127,119,221,0.15); color: var(--comp);
+  font-weight: 500; letter-spacing: 0.5px; white-space: nowrap;
+}
+
+.canvas-wrap {
+  position: relative; border-radius: var(--radius);
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+
+canvas {
+  display: block; width: 100%; height: 520px;
+  cursor: grab; touch-action: none;
+}
+canvas:active { cursor: grabbing; }
+
+.controls {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+}
+
+.controls button {
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--text2); cursor: pointer;
+  transition: all 0.2s;
+}
+.controls button:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text); border-color: rgba(255,255,255,0.15);
+}
+.controls button.active {
+  background: rgba(127,119,221,0.15);
+  color: var(--comp); border-color: rgba(127,119,221,0.3);
+}
+
+.controls .divider {
+  width: 1px; height: 28px; background: rgba(255,255,255,0.06);
+  margin: 0 4px; align-self: center;
+}
+
+.controls .speed {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text3); margin-left: auto;
+}
+.controls .speed input[type=range] {
+  width: 70px; height: 3px;
+  -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,0.1); border-radius: 2px; outline: none;
+}
+.controls .speed input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--comp); cursor: pointer;
+}
+
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+.info-card {
+  border-radius: var(--radius);
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 20px;
+  transition: border-color 0.4s;
+}
+
+.info-card .icon-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+
+.info-card .icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700; color: #fff;
+  transition: background 0.4s;
+  background: var(--apex);
+}
+
+.info-card .tag {
+  font-size: 11px; font-weight: 500; padding: 3px 10px;
+  border-radius: 20px; letter-spacing: 0.3px;
+  transition: all 0.4s;
+  background: rgba(55,138,221,0.15); color: var(--apex);
+}
+
+.info-card h2 {
+  font-size: 16px; font-weight: 500; margin-bottom: 8px;
+  letter-spacing: -0.2px; line-height: 1.4;
+  transition: color 0.3s;
+}
+
+.info-card p {
+  font-size: 13px; line-height: 1.75; color: var(--text2);
+}
+
+.legend-card {
+  border-radius: var(--radius);
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 16px 20px;
+}
+
+.legend-card h3 {
+  font-size: 12px; font-weight: 500; color: var(--text3);
+  margin-bottom: 12px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+
+.legend-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.legend-item:last-child { border-bottom: none; }
+.legend-item:hover { opacity: 0.8; }
+
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-label { font-size: 13px; font-weight: 500; }
+.legend-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.hint {
+  text-align: center; font-size: 11px; color: var(--text3);
+  padding: 8px; letter-spacing: 0.3px;
+}
+
+.footer {
+  grid-column: 1 / -1;
+  text-align: center; font-size: 11px; color: var(--text3);
+  padding: 16px 0 8px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  letter-spacing: 0.3px;
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="app">
+  <header>
+    <div class="logo">3C</div>
+    <h1>51Talk 课程理念模型</h1>
+    <span class="badge">INTERACTIVE 3D</span>
+  </header>
+
+  <div class="main-col">
+    <div class="canvas-wrap">
+      <canvas id="cv"></canvas>
+      <div class="controls">
+        <button onclick="setView('front')">正面</button>
+        <button onclick="setView('top')">俯视</button>
+        <button onclick="setView('side')">侧面</button>
+        <button onclick="setView('back')">背面</button>
+        <div class="divider"></div>
+        <button id="expBtn" onclick="toggleExplode()">解构展开</button>
+        <button id="spinBtn" class="active" onclick="toggleSpin()">旋转中</button>
+        <button onclick="resetAll()">复位</button>
+        <div class="speed">
+          速度
+          <input type="range" min="1" max="12" value="2" step="1" oninput="spinSpeed=this.value*0.001">
+        </div>
+      </div>
+    </div>
+    <p class="hint">左键拖拽旋转 · 右键/Shift+拖拽平移位置 · 滚轮缩放 · 点击顶点或面查看详情</p>
+  </div>
+
+  <div class="sidebar">
+    <div class="info-card" id="infoCard">
+      <div class="icon-row">
+        <div class="icon" id="infoIcon">3C</div>
+        <span class="tag" id="infoTag">课程模型</span>
+      </div>
+      <h2 id="infoTitle">培养能与世界有效沟通的人</h2>
+      <p id="infoDesc">语言能力、认知思维、跨文化能力三大基石共同托举核心目标。拖拽画面旋转模型，点击顶点或三角面查看详细说明。</p>
+    </div>
+
+    <div class="legend-card">
+      <h3>Model vertices</h3>
+      <div class="legend-item" onclick="showInfo(7)">
+        <div class="legend-dot" style="background:var(--apex)"></div>
+        <div>
+          <div class="legend-label" style="color:var(--apex)">有效沟通</div>
+          <div class="legend-sub">顶点 · 核心目标</div>
+        </div>
+      </div>
+      <div class="legend-item" onclick="showInfo(4)">
+        <div class="legend-dot" style="background:var(--comp)"></div>
+        <div>
+          <div class="legend-label" style="color:var(--comp)">Competence</div>
+          <div class="legend-sub">语言能力 · 载体与基石</div>
+        </div>
+      </div>
+      <div class="legend-item" onclick="showInfo(5)">
+        <div class="legend-dot" style="background:var(--cogn)"></div>
+        <div>
+          <div class="legend-label" style="color:var(--cogn)">Cognition</div>
+          <div class="legend-sub">认知思维 · 逻辑引擎</div>
+        </div>
+      </div>
+      <div class="legend-item" onclick="showInfo(6)">
+        <div class="legend-dot" style="background:var(--cult)"></div>
+        <div>
+          <div class="legend-label" style="color:var(--cult)">Culture</div>
+          <div class="legend-sub">跨文化能力 · 灵魂站位</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">51Talk Education &middot; 3C Curriculum Philosophy Model &middot; Competence &middot; Cognition &middot; Culture</div>
+</div>
+
+<script>
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W, H, cx, cy, scale = 1;
+
+function resize() {
+  const r = devicePixelRatio || 1;
+  const rect = cv.parentElement.getBoundingClientRect();
+  W = rect.width;
+  H = 520;
+  cv.width = W * r;
+  cv.height = H * r;
+  cv.style.height = H + 'px';
+  ctx.setTransform(r, 0, 0, r, 0, 0);
+  cx = W / 2;
+  cy = H / 2 + 50;
+}
+resize();
+
+const a = 2.2;
+const bh = a / Math.sqrt(3);
+const th = a * Math.sqrt(2/3);
+const cy_offset = th * 0.25;
+const baseVerts = [
+  [0,        -cy_offset,      bh],
+  [-a/2,     -cy_offset,     -bh/2],
+  [a/2,      -cy_offset,     -bh/2],
+  [0,         th - cy_offset,  0]
+];
+
+const COL = {
+  comp: '#7F77DD', cogn: '#1D9E75', cult: '#D85A30', apex: '#378ADD', gray: '#4A4960',
+  compG: 'rgba(127,119,221,', cognG: 'rgba(29,158,117,', cultG: 'rgba(216,90,48,', apexG: 'rgba(55,138,221,'
+};
+
+const faces = [
+  { verts: [0, 1, 3], color: COL.comp, glow: COL.compG, name: 'Comp-Cogn', idx: 0 },
+  { verts: [1, 2, 3], color: COL.cogn, glow: COL.cognG, name: 'Cogn-Cult', idx: 1 },
+  { verts: [2, 0, 3], color: COL.cult, glow: COL.cultG, name: 'Cult-Comp', idx: 2 },
+  { verts: [0, 2, 1], color: COL.gray, glow: 'rgba(74,73,96,', name: 'Base', idx: 3 }
+];
+
+const edges = [
+  [0, 1, COL.gray], [1, 2, COL.gray], [2, 0, COL.gray],
+  [0, 3, COL.comp], [1, 3, COL.cogn], [2, 3, COL.cult]
+];
+
+const vertexInfo = [
+  { label: 'Competence', sub: '语言能力', color: COL.comp },
+  { label: 'Cognition', sub: '认知思维', color: COL.cogn },
+  { label: 'Culture', sub: '跨文化能力', color: COL.cult },
+  { label: '有效沟通', sub: '核心目标', color: COL.apex }
+];
+
+const edgeLabels = [
+  { e: [0, 3], text: '说得好 · 说得准', color: COL.comp },
+  { e: [1, 3], text: '想得深 · 想得透', color: COL.cogn },
+  { e: [2, 3], text: '站得稳 · 传得远', color: COL.cult }
+];
+
+const infoData = [
+  { t: 'Competence ↔ Cognition', d: '语言能力与认知思维的交汇面。语言是思维的外显工具，思维是语言的内在引擎——"说得好"的前提是"想得清"。DNA双螺旋教学中，学得链（AI数字人）在这一交汇面上发挥逻辑归纳与精准点拨的作用。', c: COL.comp, tag: '交汇面', icon: 'C²' },
+  { t: 'Cognition ↔ Culture', d: '认知思维与跨文化能力的交汇面。批判性推理赋予学生"视角识别"能力，跨文化理解为多元视角提供真实语境。两者结合使学生在SDGs等全球议题中做到理性分析与共情并重。', c: COL.cogn, tag: '交汇面', icon: 'C²' },
+  { t: 'Culture ↔ Competence', d: '跨文化能力与语言能力的交汇面。具备国际标准的语用硬实力（CEFR/GSE），结合Glocal文化站位，使学生既能"讲好本土故事"，也能在多元文化语境中实现有效互动。', c: COL.cult, tag: '交汇面', icon: 'C²' },
+  { t: '三大能力基础面', d: 'Competence、Cognition、Culture构成的稳固底面。三者相互依存、互为支撑——语言无思维则空洞，思维无文化则偏狭，文化无语言则失声。', c: COL.gray, tag: '基础面', icon: '△' },
+  { t: 'Competence · 语言能力', d: '有效沟通的载体与基石。通过"功能完整性→国际标准适配→DNA双螺旋路径"递进逻辑，锚定CEFR B2 / GSE 59+出口标准，采用"习得"（真外教）+"学得"（AI数字人）双螺旋模式，确保学习者具备"用语言做事"的硬实力。', c: COL.comp, tag: '载体与基石', icon: 'C' },
+  { t: 'Cognition · 认知思维能力', d: '有效沟通的逻辑引擎。植入批判性推理、视角识别、探究世界三大认知维度，培养学生评估信息可靠性、识别偏差，并针对SDGs等全球议题提出挑战性问题的高阶思维能力。', c: COL.cogn, tag: '逻辑引擎', icon: 'C' },
+  { t: 'Culture · 跨文化能力', d: '有效沟通的灵魂站位。秉持Glocal理念，在坚定文化自信的同时培养全球同理心。从识别差异到积极回应，建立"各美其美，美美与共"的多元融合价值观。', c: COL.cult, tag: '灵魂站位', icon: 'C' },
+  { t: '培养能与世界有效沟通的人', d: '课程核心定位与最高目标。语言能力解决"说得好、说得准"，认知思维解决"想得深、想得透"，跨文化能力解决"站得稳、传得远"。赋予每个孩子以平等、理性、有同理心的姿态在世界舞台发出自信、有效声音的能力。', c: COL.apex, tag: '核心目标', icon: '★' }
+];
+
+let rotX = -0.15, rotY = 0, spinning = true, spinSpeed = 0.002;
+let exploded = 0, explodeTarget = 0;
+let dragging = false, panning = false, lastX = 0, lastY = 0;
+let panX = 0, panY = 0;
+let hoverFace = -1, hoverVert = -1;
+let time = 0;
+
+function rotMat(ax, ay) {
+  const cx1 = Math.cos(ax), sx1 = Math.sin(ax), cy1 = Math.cos(ay), sy1 = Math.sin(ay);
+  return (x, y, z) => {
+    const y2 = y * cx1 - z * sx1, z2 = y * sx1 + z * cx1;
+    return [x * cy1 + z2 * sy1, y2, -x * sy1 + z2 * cy1];
+  };
+}
+
+function project(p) {
+  const fov = 8;
+  const s = (fov / (fov + p[2])) * scale;
+  return [cx + panX + p[0] * 180 * s, cy + panY - p[1] * 180 * s, p[2], s];
+}
+
+function centroid3(vs) {
+  return [(vs[0][0]+vs[1][0]+vs[2][0])/3, (vs[0][1]+vs[1][1]+vs[2][1])/3, (vs[0][2]+vs[1][2]+vs[2][2])/3];
+}
+
+function getExplodedVerts() {
+  if (exploded < 0.01) return baseVerts.map(v => [...v]);
+  const center = [0,0,0];
+  baseVerts.forEach(v => { center[0]+=v[0]; center[1]+=v[1]; center[2]+=v[2]; });
+  center[0]/=4; center[1]/=4; center[2]/=4;
+  return baseVerts.map(v => {
+    const f = exploded * 0.65;
+    return [v[0]+(v[0]-center[0])*f, v[1]+(v[1]-center[1])*f, v[2]+(v[2]-center[2])*f];
+  });
+}
+
+function faceNormal(rv, face) {
+  const a = face.verts.map(i => rv[i]);
+  const u = [a[1][0]-a[0][0], a[1][1]-a[0][1], a[1][2]-a[0][2]];
+  const v = [a[2][0]-a[0][0], a[2][1]-a[0][1], a[2][2]-a[0][2]];
+  return [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
+}
+
+function draw() {
+  time += 0.016;
+  ctx.clearRect(0, 0, W, H);
+
+  const rot = rotMat(rotX, rotY);
+  const verts = getExplodedVerts();
+  const rv = verts.map(v => rot(v[0], v[1], v[2]));
+  const pv = rv.map(project);
+
+  const sortedFaces = faces.map((f, i) => {
+    const c = centroid3([rv[f.verts[0]], rv[f.verts[1]], rv[f.verts[2]]]);
+    return { ...f, depth: c[2], oi: i };
+  }).sort((a, b) => a.depth - b.depth);
+
+  sortedFaces.forEach(f => {
+    const pts = f.verts.map(i => pv[i]);
+    const n = faceNormal(rv, f);
+    const light = Math.max(0, (n[1]*0.5 + n[2]*0.5) / Math.sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]));
+    const baseAlpha = 0.08 + light * 0.15;
+    const isHover = f.oi === hoverFace;
+    const alpha = isHover ? baseAlpha + 0.2 : baseAlpha;
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    ctx.lineTo(pts[1][0], pts[1][1]);
+    ctx.lineTo(pts[2][0], pts[2][1]);
+    ctx.closePath();
+
+    ctx.fillStyle = f.glow + alpha + ')';
+    ctx.fill();
+
+    ctx.strokeStyle = f.glow + (isHover ? 0.8 : 0.35) + ')';
+    ctx.lineWidth = isHover ? 2 : 0.8;
+    ctx.stroke();
+  });
+
+  edges.forEach(([a, b, col]) => {
+    ctx.beginPath();
+    ctx.moveTo(pv[a][0], pv[a][1]);
+    ctx.lineTo(pv[b][0], pv[b][1]);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.2;
+    ctx.globalAlpha = 0.45;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  edgeLabels.forEach(el => {
+    const a = pv[el.e[0]], b = pv[el.e[1]];
+    const mx = (a[0]+b[0])/2, my = (a[1]+b[1])/2;
+    let angle = Math.atan2(b[1]-a[1], b[0]-a[0]);
+    if (angle > Math.PI/2) angle -= Math.PI;
+    if (angle < -Math.PI/2) angle += Math.PI;
+    const off = 16;
+    ctx.save();
+    ctx.translate(mx - Math.sin(angle)*off, my + Math.cos(angle)*off);
+    ctx.rotate(angle);
+    ctx.font = '500 11px "DM Sans", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = el.color;
+    ctx.globalAlpha = 0.65;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(el.text, 0, 0);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  });
+
+  const sortedVerts = [0,1,2,3].sort((a,b) => rv[a][2] - rv[b][2]);
+  sortedVerts.forEach(i => {
+    const p = pv[i];
+    const vi = vertexInfo[i];
+    const isApex = i === 3;
+    const isHover = hoverVert === i;
+    const baseR = isApex ? 10 : 7;
+    const r = isHover ? baseR * 1.5 : baseR;
+
+    const pulse = isApex ? 1 + Math.sin(time * 2) * 0.15 : 1;
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], (r + 12) * pulse, 0, Math.PI * 2);
+    ctx.fillStyle = vi.color;
+    ctx.globalAlpha = isApex ? 0.08 + Math.sin(time*2)*0.04 : 0.06;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    if (isApex || isHover) {
+      ctx.beginPath();
+      ctx.arc(p[0], p[1], r + 5, 0, Math.PI * 2);
+      ctx.fillStyle = vi.color;
+      ctx.globalAlpha = 0.1;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.beginPath();
+    ctx.arc(p[0], p[1], r, 0, Math.PI * 2);
+    ctx.fillStyle = vi.color;
+    ctx.fill();
+
+    ctx.font = '500 13px "DM Sans", "Noto Sans SC", sans-serif';
+    ctx.fillStyle = vi.color;
+    ctx.textAlign = 'center';
+    const ly = isApex ? p[1] - r - 22 : p[1] + r + 20;
+    ctx.fillText(vi.label, p[0], ly);
+
+    ctx.font = '400 11px "Noto Sans SC", sans-serif';
+    ctx.fillStyle = '#7A7890';
+    ctx.fillText(vi.sub, p[0], ly + 16);
+  });
+}
+
+function showInfo(i) {
+  const d = infoData[i];
+  document.getElementById('infoTitle').textContent = d.t;
+  document.getElementById('infoDesc').textContent = d.d;
+  document.getElementById('infoTag').textContent = d.tag;
+  document.getElementById('infoTag').style.background = d.c.replace(')', ',0.15)').replace('rgb', 'rgba');
+  document.getElementById('infoTag').style.color = d.c;
+  document.getElementById('infoIcon').textContent = d.icon;
+  document.getElementById('infoIcon').style.background = d.c;
+  document.getElementById('infoCard').style.borderColor = d.c.replace(')', ',0.3)').replace('rgb', 'rgba');
+
+  const hexToRgba = (hex, a) => {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  };
+  document.getElementById('infoTag').style.background = hexToRgba(d.c, 0.15);
+  document.getElementById('infoTag').style.color = d.c;
+  document.getElementById('infoCard').style.borderColor = hexToRgba(d.c, 0.25);
+}
+
+function hitTest(mx, my) {
+  const rot = rotMat(rotX, rotY);
+  const verts = getExplodedVerts();
+  const rv = verts.map(v => rot(v[0], v[1], v[2]));
+  const pv = rv.map(project);
+  for (let i = 0; i < 4; i++) {
+    const dx = mx-pv[i][0], dy = my-pv[i][1];
+    if (dx*dx+dy*dy < 500) return { type:'vertex', idx: i };
+  }
+  const sortedFaces = faces.map((f,i) => {
+    const c = centroid3([rv[f.verts[0]], rv[f.verts[1]], rv[f.verts[2]]]);
+    return { ...f, depth: c[2], oi: i };
+  }).sort((a,b) => b.depth - a.depth);
+  for (const f of sortedFaces) {
+    const pts = f.verts.map(i => [pv[i][0], pv[i][1]]);
+    if (pointInTri(mx, my, pts[0], pts[1], pts[2])) return { type:'face', idx: f.oi };
+  }
+  return null;
+}
+
+function pointInTri(px,py,a,b,c) {
+  const d1=sign(px,py,a[0],a[1],b[0],b[1]);
+  const d2=sign(px,py,b[0],b[1],c[0],c[1]);
+  const d3=sign(px,py,c[0],c[1],a[0],a[1]);
+  return !((d1<0||d2<0||d3<0)&&(d1>0||d2>0||d3>0));
+}
+function sign(px,py,x1,y1,x2,y2){return(px-x2)*(y1-y2)-(x1-x2)*(py-y2);}
+
+function getCanvasCoords(e) {
+  const rect = cv.getBoundingClientRect();
+  return [(e.clientX-rect.left)*(W/rect.width), (e.clientY-rect.top)*(H/rect.height)];
+}
+
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('pointerdown', e => {
+  dragging = true;
+  panning = e.shiftKey || e.button === 2;
+  lastX = e.clientX; lastY = e.clientY;
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', e => {
+  if (dragging) {
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (panning || e.shiftKey) {
+      panX += dx; panY += dy;
+    } else {
+      rotY += dx * 0.008;
+      rotX += dy * 0.006;
+      rotX = Math.max(-1.5, Math.min(1.5, rotX));
+    }
+    lastX = e.clientX; lastY = e.clientY;
+    return;
+  }
+  const [mx,my] = getCanvasCoords(e);
+  const hit = hitTest(mx, my);
+  hoverFace = -1; hoverVert = -1;
+  if (hit) {
+    if (hit.type === 'vertex') hoverVert = hit.idx;
+    else hoverFace = hit.idx;
+    cv.style.cursor = 'pointer';
+  } else {
+    cv.style.cursor = e.shiftKey ? 'move' : 'grab';
+  }
+});
+cv.addEventListener('pointerup', e => { dragging = false; panning = false; });
+
+cv.addEventListener('click', e => {
+  if (dragging) return;
+  const [mx,my] = getCanvasCoords(e);
+  const hit = hitTest(mx, my);
+  if (hit) {
+    if (hit.type === 'vertex') showInfo(hit.idx + 4);
+    else showInfo(hit.idx);
+  }
+});
+
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  scale = Math.max(0.5, Math.min(2, scale - e.deltaY * 0.001));
+}, { passive: false });
+
+function setView(v) {
+  spinning = false;
+  document.getElementById('spinBtn').textContent = '开始旋转';
+  document.getElementById('spinBtn').classList.remove('active');
+  const targets = { front:[-0.15,0], top:[-1.45,0], side:[-0.15,1.57], back:[-0.15,3.14] };
+  const [tx,ty] = targets[v];
+  animateTo(tx, ty, 0, 0, 1);
+}
+
+function resetAll() {
+  spinning = true;
+  document.getElementById('spinBtn').textContent = '旋转中';
+  document.getElementById('spinBtn').classList.add('active');
+  explodeTarget = 0;
+  document.getElementById('expBtn').textContent = '解构展开';
+  document.getElementById('expBtn').classList.remove('active');
+  animateTo(-0.15, 0, 0, 0, 1);
+}
+
+function animateTo(tx, ty, tpx, tpy, ts) {
+  const sx=rotX, sy=rotY, spx=panX, spy=panY, ss=scale;
+  const start=performance.now();
+  if (tpx===undefined) { tpx=panX; tpy=panY; ts=scale; }
+  function step(t) {
+    const p = Math.min(1, (t-start)/700);
+    const ease = 1 - Math.pow(1-p, 3);
+    rotX = sx + (tx-sx)*ease;
+    rotY = sy + (ty-sy)*ease;
+    panX = spx + (tpx-spx)*ease;
+    panY = spy + (tpy-spy)*ease;
+    scale = ss + (ts-ss)*ease;
+    if (p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function toggleExplode() {
+  explodeTarget = explodeTarget > 0.5 ? 0 : 1;
+  document.getElementById('expBtn').textContent = explodeTarget > 0.5 ? '合拢复原' : '解构展开';
+  document.getElementById('expBtn').classList.toggle('active', explodeTarget > 0.5);
+}
+
+function toggleSpin() {
+  spinning = !spinning;
+  const btn = document.getElementById('spinBtn');
+  btn.textContent = spinning ? '旋转中' : '开始旋转';
+  btn.classList.toggle('active', spinning);
+}
+
+function loop() {
+  if (spinning && !dragging) rotY += spinSpeed;
+  exploded += (explodeTarget - exploded) * 0.07;
+  draw();
+  requestAnimationFrame(loop);
+}
+loop();
+window.addEventListener('resize', () => { resize(); });
+</script>
+</body>
+</html>
